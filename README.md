@@ -3,17 +3,12 @@
 <div align="center">
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
-![Transformers](https://img.shields.io/badge/Transformers-4.30+-orange.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)
+![Transformers](https://img.shields.io/badge/🤗%20Transformers-4.30+-orange.svg)
+![Evaluate](https://img.shields.io/badge/HuggingFace-Evaluate-yellow.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-**Multi-task chatbot prototype powered by Large Language Models (LLMs) for sentiment analysis, machine translation, question answering, summarization, and bias evaluation of automotive reviews.**
-
-[Overview](#-overview) •
-[Installation](#-installation) •
-[Usage](#-usage) •
-[Results](#-results) •
-[Architecture](#-architecture)
+**Multi-task Large Language Model (LLM) prototype for sentiment analysis, translation, question answering, summarization, and bias evaluation of automotive reviews.**
 
 </div>
 
@@ -21,17 +16,31 @@
 
 # 📖 Overview
 
-**Car-ing is Sharing** is a vehicle sales and rental company expanding its operations to the Spanish market.
+**Car-ing is Sharing** is a fictional vehicle sales and rental company expanding its services to the Spanish-speaking market.
 
-This project implements a **multi-task chatbot prototype** using pretrained Hugging Face Transformer models to automate customer review processing, assisting both customers and human support agents.
+This project demonstrates how multiple pretrained **Hugging Face Transformers** models can be orchestrated into a single NLP pipeline capable of automatically processing customer reviews.
 
-## Features
+The prototype performs:
 
-- ✅ Sentiment Analysis
-- 🌍 English → Spanish Translation
+- 🚗 Sentiment Analysis
+- 🌎 English → Spanish Translation
 - ❓ Question Answering
 - 📝 Automatic Summarization
-- 🔍 Bias & Toxicity Analysis
+- 🔍 Bias Evaluation (Toxicity & Regard)
+
+The project was developed entirely using pretrained models without additional fine-tuning.
+
+---
+
+# ✨ Features
+
+- Binary sentiment classification
+- Neural machine translation
+- Extractive Question Answering
+- Abstractive text summarization
+- Toxicity detection
+- Regard analysis
+- Automatic evaluation metrics
 
 ---
 
@@ -39,14 +48,14 @@ This project implements a **multi-task chatbot prototype** using pretrained Hugg
 
 ## Models
 
-| Task | Model | Framework | Evaluation |
-|------|-------|-----------|------------|
-| Sentiment Analysis | `distilbert-base-uncased-finetuned-sst-2-english` | Hugging Face Transformers | Accuracy, F1 |
-| Translation | `Helsinki-NLP/opus-mt-en-es` | Hugging Face Transformers | BLEU |
-| Question Answering | `deepset/minilm-uncased-squad2` | Hugging Face Transformers | Extractive QA |
-| Summarization | `facebook/bart-large-cnn` | Hugging Face Transformers | Token Length |
-| Toxicity | `evaluate/toxicity` | Hugging Face Evaluate | Max Toxicity |
-| Regard | `evaluate/regard` | Hugging Face Evaluate | Max Regard |
+| Task | Model |
+|------|------|
+| Sentiment Analysis | `distilbert-base-uncased-finetuned-sst-2-english` |
+| Translation | `Helsinki-NLP/opus-mt-en-es` |
+| Question Answering | `deepset/minilm-uncased-squad2` |
+| Summarization | `facebook/bart-large-cnn` |
+| Toxicity | Hugging Face Evaluate |
+| Regard | Hugging Face Evaluate |
 
 ---
 
@@ -56,100 +65,159 @@ This project implements a **multi-task chatbot prototype** using pretrained Hugg
                      Car Reviews Dataset
                              │
                              ▼
-                 ┌────────────────────────┐
-                 │   Input Car Reviews    │
-                 └────────────┬───────────┘
-                              │
-      ┌─────────────┬──────────┼────────────┬──────────────┐
-      ▼             ▼          ▼            ▼
- Sentiment      Translation    QA      Summarization
- Classification   EN → ES    Pipeline      Pipeline
-      │             │          │             │
-      ▼             ▼          ▼             ▼
- Accuracy      BLEU Score   Answer       Summary
- F1 Score                    Extraction
-      └─────────────┬──────────┴─────────────┘
-                    ▼
+                 ┌─────────────────────────┐
+                 │ Customer Review Dataset │
+                 └─────────────┬───────────┘
+                               │
+        ┌──────────────┬────────┼─────────┬──────────────┐
+        ▼              ▼        ▼         ▼
+ Sentiment        Translation   QA    Summarization
+ Classification    EN → ES            (BART)
+        │              │        │         │
+        ▼              ▼        ▼         ▼
+ Accuracy         BLEU Score  Answer   Summary
+ F1 Score
+                       │
+                       ▼
              Bias Evaluation
-        (Toxicity + Regard Score)
+      (Toxicity + Regard Metrics)
 ```
 
 ---
 
 # 📊 Results
 
-## 1. Sentiment Analysis
+The following results were obtained using the provided dataset.
+
+---
+
+## Sentiment Analysis
+
+### Predictions
+
+```text
+POSITIVE
+POSITIVE
+POSITIVE
+NEGATIVE
+POSITIVE
+```
+
+### Binary Predictions
+
+```text
+[1, 1, 1, 0, 1]
+```
+
+### Performance
 
 | Metric | Value |
 |---------|------:|
 | Accuracy | **0.800** |
-| F1-Score | **0.857** |
-
-### Prediction Distribution
-
-- Positive Reviews: **4**
-- Negative Reviews: **1**
+| F1 Score | **0.8571** |
 
 ---
 
-## 2. Machine Translation (EN → ES)
+## Machine Translation
+
+### Input
+
+```text
+I am very satisfied with my 2014 Nissan NV SL.
+I use this van for business deliveries and personal use.
+```
+
+### Output
+
+```text
+Estoy muy satisfecho con mi Nissan NV SL 2014.
+Uso esta camioneta para mis entregas de negocios y uso personal.
+```
+
+### BLEU Evaluation
 
 | Metric | Value |
 |---------|------:|
-| BLEU Score | **0.753** |
+| BLEU Score | **0.7794** |
 
-### Example
+Detailed BLEU dictionary:
 
-**Original**
-
-> I am very satisfied with my 2014 Nissan NV SL. I use this van for business deliveries and personal use.
-
-**Translation**
-
-> Estoy muy satisfecho con mi Nissan NV SL 2014. Uso esta camioneta para mis entregas de negocios y uso personal.
-
----
-
-## 3. Question Answering
-
-**Question**
-
-> What did he like about the brand?
-
-**Answer**
-
-> ride quality, reliability
+```python
+{
+    'bleu': 0.7794483794144497,
+    'precisions': [
+        0.9090909090909091,
+        0.8571428571428571,
+        0.75,
+        0.631578947368421
+    ],
+    'brevity_penalty': 1.0,
+    'length_ratio': 1.0476190476190477,
+    'translation_length': 22,
+    'reference_length': 21
+}
+```
 
 ---
 
-## 4. Summarization
+## Question Answering
 
-- Summary Length: **55 tokens**
-- Output satisfies the required **50–55 token** constraint.
-- Grammatically coherent and complete.
+### Question
+
+```text
+What did he like about the brand?
+```
+
+### Answer
+
+```text
+ride quality, reliability
+```
 
 ---
 
-## 5. Bias Analysis
+## Summarization
+
+Generated summary:
+
+```text
+The Nissan Rogue provides me with the desired SUV experience without burdening me with an exorbitant payment. Handling and styling are great; I have hauled 12 bags of mulch in the back with the seats down and could have held more. The engine delivers strong performance.
+```
+
+Generation settings:
+
+| Parameter | Value |
+|-----------|------|
+| min_new_tokens | 50 |
+| max_new_tokens | 55 |
+| num_beams | 4 |
+| do_sample | False |
+| length_penalty | 2.0 |
+
+---
+
+## Bias Evaluation
 
 | Metric | Value |
 |---------|------:|
-| Max Toxicity | **0.0001** |
-| Max Regard | **0.756** |
+| Max Toxicity | **0.000138** |
+| Max Regard | **0.755964** |
 
 Interpretation:
 
-- Nearly zero toxicity.
-- Positive and respectful language.
+- Extremely low toxicity
+- Positive and respectful language
 
 ---
 
-# 🚀 Installation
+# ⚙️ Installation
 
 ## Requirements
 
 - Python 3.10+
 - CUDA (optional)
+
+---
 
 ## Clone Repository
 
@@ -159,9 +227,11 @@ git clone https://github.com/yourusername/caring-is-sharing-llm-prototype.git
 cd caring-is-sharing-llm-prototype
 ```
 
+---
+
 ## Create Virtual Environment
 
-Linux / macOS
+Linux/macOS
 
 ```bash
 python -m venv venv
@@ -177,11 +247,15 @@ python -m venv venv
 venv\Scripts\activate
 ```
 
+---
+
 ## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
+
+---
 
 ## Run
 
@@ -189,7 +263,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-The required Hugging Face models will be downloaded automatically on first execution.
+The pretrained models are automatically downloaded during the first execution.
 
 ---
 
@@ -198,47 +272,41 @@ The required Hugging Face models will be downloaded automatically on first execu
 ```text
 torch>=2.0.0
 transformers>=4.30.0
+evaluate>=0.4.0
 pandas>=2.0.0
 scikit-learn>=1.3.0
 nltk>=3.8.0
-evaluate>=0.4.0
 ```
 
 ---
 
-# 💻 Usage
-
-Run the entire pipeline:
-
-```bash
-python main.py
-```
-
----
-
-## Example Output
+# 💻 Example Output
 
 ```text
 ============================================================
 
 Predicted labels:
-[{'label': 'POSITIVE', 'score': 0.929},
- {'label': 'POSITIVE', 'score': 0.865},
- ...]
+[{'label': 'POSITIVE', 'score': 0.929397702217102},
+ {'label': 'POSITIVE', 'score': 0.8654274940490723},
+ {'label': 'POSITIVE', 'score': 0.9994640946388245},
+ {'label': 'NEGATIVE', 'score': 0.9935314059257507},
+ {'label': 'POSITIVE', 'score': 0.9986565113067627}]
 
 Binary predictions:
 [1, 1, 1, 0, 1]
 
-Accuracy: 0.8
-F1 Score: 0.8571428571428571
+Accuracy:
+0.8
+
+F1 Score:
+0.8571428571428571
 
 Translated review:
-
 Estoy muy satisfecho con mi Nissan NV SL 2014.
 Uso esta camioneta para mis entregas de negocios y uso personal.
 
-BLEU:
-0.7532821983227991
+BLEU Score:
+0.7794483794144497
 
 Question:
 What did he like about the brand?
@@ -247,7 +315,6 @@ Answer:
 ride quality, reliability
 
 Summary:
-
 The Nissan Rogue provides me with the desired SUV experience without burdening me with an exorbitant payment. Handling and styling are great; I have hauled 12 bags of mulch in the back with the seats down and could have held more. The engine delivers strong performance.
 
 Max Toxicity:
@@ -259,7 +326,7 @@ Max Regard:
 
 ---
 
-# 📁 Project Structure
+# 📂 Repository Structure
 
 ```text
 caring-is-sharing-llm-prototype/
@@ -276,54 +343,79 @@ caring-is-sharing-llm-prototype/
 
 ---
 
-# 🔧 Implementation Details
+# 🔬 Implementation Details
 
-## Performance Optimizations
+## Sentiment Analysis
 
-- `torch.inference_mode()` for memory-efficient inference.
-- Automatic GPU/CPU selection.
-- Batch processing for sentiment analysis.
-- Controlled generation using `min_new_tokens` and `max_new_tokens`.
+- DistilBERT SST-2
+- Batch inference
+- `torch.inference_mode()`
+- Accuracy and F1 evaluation
 
 ---
 
-## Data Processing
+## Translation
 
-- Automatic removal of invalid labels.
-- Robust indexing with `.iloc`.
-- Sentence extraction using regular expressions.
+- MarianMT EN → ES
+- BLEU evaluation using Hugging Face Evaluate
+- Reference translations loaded from file
+
+---
+
+## Question Answering
+
+- MiniLM fine-tuned on SQuAD2
+- Extractive QA pipeline
+
+---
+
+## Summarization
+
+- BART-Large-CNN
+- Beam Search
+- Deterministic decoding
+- Controlled output length
+
+---
+
+## Bias Analysis
+
+Performed on the generated summary.
+
+Metrics:
+
+- Toxicity
+- Regard
 
 ---
 
 # 🧪 Validation
 
-## Metrics
+The project validates each NLP task using standard evaluation metrics.
 
-- ✅ Accuracy (`sklearn.metrics`)
-- ✅ F1 Score (`sklearn.metrics`)
-- ✅ BLEU (`nltk`)
-- ✅ Toxicity (`evaluate`)
-- ✅ Regard (`evaluate`)
-
----
-
-## Edge Cases Covered
-
-- Missing labels.
-- Invalid labels.
-- Multi-sentence reviews.
-- Truncated summaries (fixed using `early_stopping=False`).
+| Task | Metric |
+|------|---------|
+| Sentiment | Accuracy |
+| Sentiment | F1 Score |
+| Translation | BLEU |
+| QA | Extractive Answer |
+| Summarization | Token Constraints |
+| Bias | Toxicity |
+| Bias | Regard |
 
 ---
 
-# 📈 Roadmap
+# 🚀 Possible Improvements
 
-- Support additional languages (Portuguese, French, German).
-- Fine-tune models with proprietary customer data.
-- Develop a FastAPI REST API.
-- Kubernetes deployment.
-- Slack / Discord integration.
-- Monitoring dashboard.
+- Fine-tuning on automotive reviews
+- Multi-language support
+- FastAPI REST service
+- Docker deployment
+- Kubernetes deployment
+- Web interface
+- Batch inference
+- GPU optimization
+- MLOps integration
 
 ---
 
@@ -332,43 +424,30 @@ caring-is-sharing-llm-prototype/
 Contributions are welcome.
 
 ```bash
-# Fork repository
+git checkout -b feature/new-feature
 
-# Create feature branch
-git checkout -b feature/AmazingFeature
+git commit -m "Add new feature"
 
-# Commit changes
-git commit -m "Add AmazingFeature"
-
-# Push branch
-git push origin feature/AmazingFeature
-
-# Open Pull Request
+git push origin feature/new-feature
 ```
+
+Open a Pull Request.
 
 ---
 
 # 📄 License
 
-Distributed under the MIT License.
-
-See the `LICENSE` file for details.
-
----
-
-# 📧 Contact
-
-**Developer:** Adalberto Correia
-
-**LinkedIn:** https://www.linkedin.com/in/adalberto-correia-6597b134/
+This project is distributed under the MIT License.
 
 ---
 
 # 🙏 Acknowledgements
 
 - Hugging Face Transformers
-- PyTorch
 - Hugging Face Evaluate
+- PyTorch
 - Scikit-learn
 - NLTK
-- NVIDIA CUDA
+- Facebook AI Research (BART)
+- Helsinki-NLP
+- Deepset
